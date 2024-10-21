@@ -8,10 +8,9 @@ using namespace std;
 using json = nlohmann::json;
 
 struct arrr {
-string value;
-arrr* next;
+string value = "";
+arrr* next = nullptr;
 size_t size;
-arrr() : value(""), next(nullptr) {}
 
 
 
@@ -55,7 +54,7 @@ string pop() {
 void setSize(int sizze) {
 	if (sizze < 0) return;
 	if (sizze = 0) {
-		cout<< "SET A SIZE TO 0!!!\n\n\n";
+		//cout<< "SET A SIZE TO 0!!!\n\n\n";
 	this->size = sizze;
 	this->next = nullptr;
 	return;
@@ -394,11 +393,11 @@ string tocharints(string& str){
 
 void obliterateDirectory(const string& path) {
 try {
-for (const auto& entry : filesystem::recursive_directory_iterator(path)) {
-filesystem::remove_all(entry.path());
+for (const auto& entry : fs::directory_iterator(path)) {
+fs::remove_all(entry.path());
 }
-filesystem::remove(path);
-} catch (const filesystem::filesystem_error& e) {
+fs::remove(path);
+} catch (const fs::filesystem_error& e) {
 cerr << "Oops! An error: " << e.what() << '\n';
 }
 }
@@ -440,26 +439,26 @@ void createDatabaseStructure(const string& schemaName, arrr2d* tables, size_t tu
 }
 
 bool acquireTableLock(const fs::path& lockFilePath) {
-fstream lockFile(lockFilePath, ios::in | ios::out);
-if (!lockFile) {
-lockFile.open(lockFilePath, ios::out);
-lockFile << "0";
-lockFile.close();
-lockFile.open(lockFilePath, ios::in | ios::out);
-}
+	fstream lockFile(lockFilePath, ios::in | ios::out);
+	if (!lockFile) {
+	lockFile.open(lockFilePath, ios::out);
+	lockFile << "0";
+	lockFile.close();
+	lockFile.open(lockFilePath, ios::in | ios::out);
+	}
 
-string lockStatus;
-getline(lockFile, lockStatus);
+	string lockStatus;
+	getline(lockFile, lockStatus);
 
-if (lockStatus == "0") {
-lockFile.seekp(0);
-lockFile << "1";
-lockFile.close();
-return true;
-}
+	if (lockStatus == "0") {
+	lockFile.seekp(0);
+	lockFile << "1";
+	lockFile.close();
+	return true;
+	}
 
-lockFile.close();
-return false;
+	lockFile.close();
+	return false;
 }
 
 
@@ -573,26 +572,26 @@ return;
 }
 
 for (const auto& tableEntry : fs::directory_iterator(schemaPath)) {
-if (fs::is_directory(tableEntry)) {
-string tableName = tableEntry.path().filename().string();
-cout << "Table: " << tableName << endl;
-cout << "------------------------" << endl;
+	if (fs::is_directory(tableEntry)) {
+	string tableName = tableEntry.path().filename().string();
+	cout << "Table: " << tableName << endl;
+	cout << "------------------------" << endl;
 
-for (const auto& fileEntry : fs::directory_iterator(tableEntry)) {
-if (fs::is_regular_file(fileEntry) && fileEntry.path().extension() == ".csv") {
-ifstream csvFile(fileEntry.path());
-if (csvFile.is_open()) {
-string line;
-while (getline(csvFile, line)) {
-cout << line << endl;
-}
-csvFile.close();
-cout << endl;
-}
-}
-}
-cout << endl;
-}
+	for (const auto& fileEntry : fs::directory_iterator(tableEntry)) {
+	if (fs::is_regular_file(fileEntry) && fileEntry.path().extension() == ".csv") {
+	ifstream csvFile(fileEntry.path());
+	if (csvFile.is_open()) {
+	string line;
+	while (getline(csvFile, line)) {
+	cout << line << endl;
+	}
+	csvFile.close();
+	cout << endl;
+	}
+	}
+	}
+	cout << endl;
+	}
 }
 }
 
@@ -605,76 +604,91 @@ return !isspace(ch);
 }).base(), s.end());
 }
 
+bool strToBool(string str){
+	if(str == "1"){return true;}
+	else {return false;}
+}
+
+string boolToStr(bool bl){
+	if(bl){return "1";}
+	else{return "0";}
+}
 
 bool evaluateWhereClause(const string& line, arrr* headers, const string& expression, size_t indx) {
 if (expression.empty()) return true;
 
 istringstream exprStream(expression);
-vector<string> tokens;
+/*vector<string>*/ arrr* tokens = new arrr;
+tokens->setSize(0);
 string token;
-while (exprStream >> token) tokens.push_back(token);
+while (exprStream >> token) tokens->push(token);
 
-vector<bool> values;
-vector<string> operators;
+arrr* values = new arrr;
+arrr* operators = new arrr;
+//vector<string> operators;
 
-for (size_t i = 0; i < tokens.size(); ++i) {
-if (tokens[i] == "AND" || tokens[i] == "OR") {
-operators.push_back(tokens[i]);
-} else if (tokens[i] == "(") {
-operators.push_back(tokens[i]);
-} else if (tokens[i] == ")") {
-while (!operators.empty() && operators.back() != "(") {
-bool right = values.back(); values.pop_back();
-bool left = values.back(); values.pop_back();
-string op = operators.back(); operators.pop_back();
-values.push_back(op == "AND" ? (left && right) : (left || right));
+for (size_t i = 0; i < tokens->size; ++i) {
+	if (tokens->get(i)->value == "AND" || tokens->get(i)->value == "OR") {
+	o	perators.push_back(tokens->get(i)->value);
+	} 
+	/*else if (tokens->get(i)->value == "(") {
+		operators->push(tokens->get(i)->value);
+	} 
+	else if (tokens->get(i)->value == ")") {
+	while (!(operators->value!="") && operators.(operators->size - 1)->operators) != "(") {
+		
+		// bool right = values.back(); values.pop_back();
+		// bool left = values.back(); values.pop_back();
+		
+		bool right = strToBool(values->get(values->size - 1)->value); values->pop();
+		bool left = strToBool(values->get(values->size - 1)->value); values->pop();
+		string op = operators.back(); operators.pop_back();
+		values->push(boolToStr(op == "AND" ? (left && right) : (left || right)));
+	}
+	if (!operators.empty()) operators.pop_back();
+	}*/ else {
+	string leftValue = tokens->get(i)->value;
+	string op = tokens->get(++i)->value;
+	string rightValue = tokens->get(++i)->value;
+
+	if (leftValue[0] == '\'' && leftValue.back() == '\'') {
+	leftValue = leftValue.substr(1, leftValue.length() - 2);
+	} else {
+	try {
+	leftValue = getTableVal(leftValue.substr(leftValue.find('.') + 1), leftValue.substr(0, leftValue.find('.')), indx);
+	} catch (...) {
+	leftValue = "N\\A LEFT";
+	}
+	}
+
+
+	if (rightValue[0] == '\'' && rightValue.back() == '\'') {
+	rightValue = rightValue.substr(1, rightValue.length() - 2);
+	} else {
+	try {
+	rightValue = getTableVal(rightValue.substr(rightValue.find('.') + 1), rightValue.substr(0, rightValue.find('.')), indx);
+	} catch (...) {
+	rightValue = "N\\A RIGHT";
+	}
+	}
+
+
+	values.push_back(op == "=" ? (leftValue == rightValue) : false);
+	}
+
+	while (values->size > 1) {
+	bool right = strToBool(values->get(values->size - 1)->value); values->pop();
+	bool left = strToBool(values->get(values->size - 1)->value); values->pop();
+	string op = operators->get(operators->size - 1)->value; operators.pop();
+	values.push(boolToStr(op == "AND" ? (left && right) : (left || right)));
+	}
 }
-if (!operators.empty()) operators.pop_back();
-} else {
-string leftValue = tokens[i];
-string op = tokens[++i];
-string rightValue = tokens[++i];
 
-if (leftValue[0] == '\'' && leftValue.back() == '\'') {
-leftValue = leftValue.substr(1, leftValue.length() - 2);
-} else {
-try {
-leftValue = getTableVal(leftValue.substr(leftValue.find('.') + 1), leftValue.substr(0, leftValue.find('.')), indx);
-} catch (...) {
-leftValue = "N\\A LEFT";
-}
-}
-
-
-if (rightValue[0] == '\'' && rightValue.back() == '\'') {
-rightValue = rightValue.substr(1, rightValue.length() - 2);
-} else {
-try {
-rightValue = getTableVal(rightValue.substr(rightValue.find('.') + 1), rightValue.substr(0, rightValue.find('.')), indx);
-} catch (...) {
-rightValue = "N\\A RIGHT";
-}
-}
-
-
-values.push_back(op == "=" ? (leftValue == rightValue) : false);
-}
-
-while (values.size() > 1) {
-bool right = values.back(); values.pop_back();
-bool left = values.back(); values.pop_back();
-string op = operators.back(); operators.pop_back();
-values.push_back(op == "AND" ? (left && right) : (left || right));
-}
-}
-
-return values.back();
+return values->get(values->size - 1)->value;
 }
 
 
 arrr2d* select(const string& schemaName, const string& columns, const string& tableNames, const string& whereClause) { //uncanny incredibles skull
-
-
 
 arrr2d* result = new arrr2d();
 
