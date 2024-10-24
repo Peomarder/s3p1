@@ -35,7 +35,7 @@ void push(const string& newValue) {
 string pop() {
 	if (!this->next) {
 	string poppedValue = this->value;
-	this->size = 1; //probably bad
+	this->size = 0; //probably bad
 	this->value = "";
 	return poppedValue;
 	}
@@ -89,7 +89,7 @@ arrr* get(size_t index) {
 }
 
 void print(){
-	if (this->size>4000){throw runtime_error("Overflow!");}
+	if (this->size>4000000){throw runtime_error("Overflow!");}
 	cout<<"\nPRINTING ARRAY SIZE "<<this->size<<"\n";
 	for (int j = 0; j < this->size+1; ++j) {
 	cout << this->get(j)->value<<" "<<j<<" ";
@@ -332,18 +332,14 @@ string getTableVal(string column, string table, size_t indx) {
 
 	string trueVal;
 	size_t currowi = 0;
-
-	//cout << "#GTV# Searching CSV files in directory" << endl;
 	for (const auto& fileEntry : fs::directory_iterator(tablePath)) {
 		if (fs::is_regular_file(fileEntry) && fileEntry.path().extension() == ".csv") {
-			//cout << "#GTV# Processing file: " << fileEntry.path() << endl;
 			ifstream csvFile(fileEntry.path());
 			if (csvFile.is_open()) {
 				string line;
 				arrr* headersf = new arrr();
 				headersf->setSize(0);
 				getline(csvFile, line);
-				//cout << "#GTV# Header line: " << line << endl;
 				istringstream headerStream(line);
 				string header;
 				while (getline(headerStream, header, ',')) {
@@ -354,20 +350,16 @@ string getTableVal(string column, string table, size_t indx) {
 				for (int i = 0; i < headersf->size; ++i) {
 					if (headersf->get(i + 1)->value == column) {
 					columnIndex = i+1;
-					//cout << "#GTV# Found column " << column << " at index " << columnIndex << endl;
 					break;
 					}
 				}
 
-				//cout << "#GTV# Searching for row at index " << indx << endl;
 				while (getline(csvFile, line)) {
 					if(currowi == indx){
-					//cout << "#GTV# Found target row: " << line << endl;
 					istringstream linefStream(line);
 					int curcoli = 0;
 					while (getline(linefStream, trueVal, ',')) {
 					if(columnIndex==curcoli){
-					//cout << "#GTV# Found value: " << trueVal << " at column " << curcoli << endl;
 					return trueVal;
 					}
 					curcoli++;
@@ -375,7 +367,6 @@ string getTableVal(string column, string table, size_t indx) {
 					}
 					currowi++;
 				}
-				//cout << "#GTV# Reached end of file without finding target row" << endl;
 			}
 		}
 	}
@@ -629,7 +620,7 @@ arrr* operators = new arrr;
 
 for (size_t i = 0; i < tokens->size; ++i) {
 	if (tokens->get(i)->value == "AND" || tokens->get(i)->value == "OR") {
-	o	perators.push_back(tokens->get(i)->value);
+	operators.push(tokens->get(i)->value);
 	} 
 	/*else if (tokens->get(i)->value == "(") {
 		operators->push(tokens->get(i)->value);
@@ -673,7 +664,7 @@ for (size_t i = 0; i < tokens->size; ++i) {
 	}
 
 
-	values.push_back(op == "=" ? (leftValue == rightValue) : false);
+	values.push(op == "=" ? (leftValue == rightValue) : false);
 	}
 
 	while (values->size > 1) {
