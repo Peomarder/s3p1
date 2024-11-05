@@ -609,35 +609,20 @@ bool evaluateWhereClause(const string& line, arrr* headers, const string& expres
 if (expression.empty()) return true;
 
 istringstream exprStream(expression);
-/*vector<string>*/ arrr* tokens = new arrr;
+ arrr* tokens = new arrr;
 tokens->setSize(0);
 string token;
 while (exprStream >> token) tokens->push(token);
 
 arrr* values = new arrr;
 arrr* operators = new arrr;
-//vector<string> operators;
 
 for (size_t i = 0; i < tokens->size; ++i) {
 	if (tokens->get(i)->value == "AND" || tokens->get(i)->value == "OR") {
-	operators.push(tokens->get(i)->value);
+	operators->push(tokens->get(i)->value);
 	} 
-	/*else if (tokens->get(i)->value == "(") {
-		operators->push(tokens->get(i)->value);
-	} 
-	else if (tokens->get(i)->value == ")") {
-	while (!(operators->value!="") && operators.(operators->size - 1)->operators) != "(") {
-		
-		// bool right = values.back(); values.pop_back();
-		// bool left = values.back(); values.pop_back();
-		
-		bool right = strToBool(values->get(values->size - 1)->value); values->pop();
-		bool left = strToBool(values->get(values->size - 1)->value); values->pop();
-		string op = operators.back(); operators.pop_back();
-		values->push(boolToStr(op == "AND" ? (left && right) : (left || right)));
-	}
-	if (!operators.empty()) operators.pop_back();
-	}*/ else {
+
+	 else {
 	string leftValue = tokens->get(i)->value;
 	string op = tokens->get(++i)->value;
 	string rightValue = tokens->get(++i)->value;
@@ -664,18 +649,18 @@ for (size_t i = 0; i < tokens->size; ++i) {
 	}
 
 
-	values.push(op == "=" ? (leftValue == rightValue) : false);
+	values->push(boolToStr(op == "=" ? (leftValue == rightValue) : false));
 	}
 
 	while (values->size > 1) {
 	bool right = strToBool(values->get(values->size - 1)->value); values->pop();
 	bool left = strToBool(values->get(values->size - 1)->value); values->pop();
-	string op = operators->get(operators->size - 1)->value; operators.pop();
-	values.push(boolToStr(op == "AND" ? (left && right) : (left || right)));
+	string op = operators->get(operators->size - 1)->value; operators->pop();
+	values->push(boolToStr(op == "AND" ? (left && right) : (left || right)));
 	}
 }
 
-return values->get(values->size - 1)->value;
+return strToBool(values->get(values->size - 1)->value);
 }
 
 
