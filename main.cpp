@@ -44,7 +44,7 @@ string pop() {
 	current = current->next;
 	}
 	string poppedValue = current->next->value;
-	delete current->next;
+	//delete current->next;
 	current->next = nullptr;
 	this->size--;
 	return poppedValue;
@@ -407,7 +407,7 @@ void createDatabaseStructure(const string& schemaName, arrr2d* tables, size_t tu
 		
 		// Create primary key sequence file
 		ofstream pkSequenceFile(tablePath / (tableName + "_pk_sequence.txt"));
-		pkSequenceFile << tocharints(tableName) + string(to_string(tuplesLimit).length(), '0');
+		pkSequenceFile << tocharints(tableName) + string(to_string(tuplesLimit).length()+1, '0');
 		pkSequenceFile.close();
 		
 		// Create lock file
@@ -772,7 +772,6 @@ while (getline(tableStream, tableName, ',')) {
 			//resRow->popAll();
 			delete resRow;
 		}
-	//delete headers;
 	csvFile.close();
 	//cout<<"C closing csv...\n";
 	}
@@ -788,13 +787,12 @@ while (getline(tableStream, tableName, ',')) {
 		actualresult->pushArray(result);
 		//actualresult->print();
 		result->setSize(columnList->size-1,1);
-		cout<<"#NR";
+		//cout<<"#NR";
 }
 //cout<<"R";
 cout<<actualresult->numCols<<" "<<actualresult->numRows<<endl;
 actualresult->print();
-//delete columnList;
-return actualresult;
+return actualresult;//lol
 
 }
 
@@ -849,7 +847,6 @@ void deleteRecords(const string& tableName, const string& whereClause) {
 
 	inputFile.close();
 	tempFile.close();
-	delete headers;
 
 	fs::remove(filePath);
 
